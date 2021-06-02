@@ -5,7 +5,7 @@
 // @match       https://pokeclicker.com/
 // @grant       GM_setValue
 // @grant       GM_getValue
-// @version     1.0
+// @version     1.0.1
 // @author      Mori
 // @run-at      document-idle
 // ==/UserScript==
@@ -62,6 +62,8 @@
     } else {
       GameConstants.GYM_TIME = 3000
     }
+
+    setTimeout(applyTimeMods, 1000)
   }
   applyTimeMods()
 
@@ -256,7 +258,6 @@
       settings.addProteins = relaxerSettingsMenu.querySelector('#addProteins').checked
 
       saveSettings()
-      applyTimeMods()
     })
   }
   createSettingsMenu()
