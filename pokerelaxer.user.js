@@ -5,7 +5,7 @@
 // @match       https://pokeclicker.com/
 // @grant       GM_setValue
 // @grant       GM_getValue
-// @version     1.1
+// @version     1.1.1
 // @author      Mori
 // @run-at      document-idle
 // ==/UserScript==
@@ -195,7 +195,7 @@
         if (!BattleFrontierRunner.started()) {
           BattleFrontier.start()
         } else {
-          const maxTicks = 10
+          const maxTicks = 5
 
           if (Battle.enemyPokemon()) {
             const myDamage = App.game.party.calculatePokemonAttack(Battle.enemyPokemon().type1, Battle.enemyPokemon().type2)
