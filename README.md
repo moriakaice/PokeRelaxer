@@ -21,6 +21,8 @@ After installing and reloading the game, you should see a new menu next to the e
 - `Auto add Proteins` will grant player Proteins if they need them.
 - `Extend dungeon time` will add extra time to dungeons based on the number of the region (warning: Kanto doesn't grant extra time).
 - `Extend gym time` will add extra time to gyms based on the number of the region (warning: Kanto doesn't grant extra time).
+- `Auto Battle Frontier` will, if turned on, automate Battle Frontier - just enter the location manually and the script will take care of the rest,
+  auto-quitting when killing enemy Pokemon takes too long to speed up breeding. To stop, either turn the option off or reload the game.
 
 ## Other functions
 

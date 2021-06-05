@@ -5,7 +5,7 @@
 // @match       https://pokeclicker.com/
 // @grant       GM_setValue
 // @grant       GM_getValue
-// @version     1.0.1
+// @version     1.1
 // @author      Mori
 // @run-at      document-idle
 // ==/UserScript==
@@ -38,6 +38,7 @@
     extendGymTime: GM_getValue('extendGymTime', false),
     useProteins: GM_getValue('useProteins', false),
     addProteins: GM_getValue('addProteins', false),
+    autoBattleFrontier: GM_getValue('autoBattleFrontier', false),
   }
   const sleep = (timeToSleep) => new Promise((r) => setTimeout(r, timeToSleep))
 
@@ -74,6 +75,7 @@
     GM_setValue('extendGymTime', settings.extendGymTime)
     GM_setValue('useProteins', settings.useProteins)
     GM_setValue('addProteins', settings.addProteins)
+    GM_setValue('autoBattleFrontier', settings.autoBattleFrontier)
   }
   saveSettings()
 
@@ -187,6 +189,32 @@
   }
   pokedexCatchAll()
 
+  async function battleFrontier() {
+    if (settings.autoBattleFrontier && BattleFrontier.canAccess()) {
+      if (App.game.gameState === GameConstants.GameState.battleFrontier) {
+        if (!BattleFrontierRunner.started()) {
+          BattleFrontier.start()
+        } else {
+          const maxTicks = 10
+
+          if (Battle.enemyPokemon()) {
+            const myDamage = App.game.party.calculatePokemonAttack(Battle.enemyPokemon().type1, Battle.enemyPokemon().type2)
+            const enemyMaxHealth = Battle.enemyPokemon().maxHealth()
+
+            const ticks = Math.ceil(enemyMaxHealth / myDamage)
+
+            if (ticks > maxTicks) {
+              BattleFrontierRunner.battleLost()
+            }
+          }
+        }
+      }
+    }
+
+    setTimeout(battleFrontier, 1000)
+  }
+  battleFrontier()
+
   async function createSettingsMenu() {
     let regionOptions = ''
 
@@ -228,6 +256,9 @@
             Extend gym time: <input type="checkbox" id="extendGymTime" ${settings.extendGymTime ? 'checked="checked"' : ''} />
         </li>
         <li>
+            Auto Battle Frontier: <input type="checkbox" id="autoBattleFrontier" ${settings.autoBattleFrontier ? 'checked="checked"' : ''} />
+        </li>
+        <li>
             <button class="btn btn-secondary float-right saveSettings" type="button" style="font-family: pokemonFont,'Helvetica Neue',sans-serif;">
                 Save settings
             </button>
@@ -256,6 +287,7 @@
       settings.extendGymTime = relaxerSettingsMenu.querySelector('#extendGymTime').checked
       settings.useProteins = relaxerSettingsMenu.querySelector('#useProteins').checked
       settings.addProteins = relaxerSettingsMenu.querySelector('#addProteins').checked
+      settings.autoBattleFrontier = relaxerSettingsMenu.querySelector('#autoBattleFrontier').checked
 
       saveSettings()
     })
