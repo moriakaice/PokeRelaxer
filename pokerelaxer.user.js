@@ -5,7 +5,7 @@
 // @match       https://pokeclicker.com/
 // @grant       GM_setValue
 // @grant       GM_getValue
-// @version     1.1.1
+// @version     1.2
 // @author      Mori
 // @run-at      document-idle
 // ==/UserScript==
@@ -111,21 +111,30 @@
 
           const regionToCompare = settings.regionPrioForBreeding === 'player' ? player.region : parseInt(settings.regionPrioForBreeding, 10)
 
-          const prioA = regionToCompare === pokemonMap[a.name].nativeRegion ? 1 : 0.4
-          const prioB = regionToCompare === pokemonMap[b.name].nativeRegion ? 1 : 0.4
+          const prioA = regionToCompare === pokemonMap[a.name].nativeRegion ? 1 : 0.5
+          const prioB = regionToCompare === pokemonMap[b.name].nativeRegion ? 1 : 0.5
 
-          return (
-            (prioB * (b.baseAttack * (GameConstants.BREEDING_ATTACK_BONUS / 100) + b.proteinsUsed())) / pokemonMap[b.name].eggCycles -
-            (prioA * (a.baseAttack * (GameConstants.BREEDING_ATTACK_BONUS / 100) + a.proteinsUsed())) / pokemonMap[a.name].eggCycles
-          )
+          const cyclesA = pokemonMap[a.name].eggCycles
+          const cyclesB = pokemonMap[b.name].eggCycles
+
+          const attackBonusA = a.baseAttack * (GameConstants.BREEDING_ATTACK_BONUS / 100) + a.proteinsUsed()
+          const attackBonusB = b.baseAttack * (GameConstants.BREEDING_ATTACK_BONUS / 100) + b.proteinsUsed()
+
+          const rateA = (prioA * attackBonusA) / cyclesA
+          const rateB = (prioB * attackBonusB) / cyclesB
+
+          return rateA !== rateB ? rateB - rateA : cyclesA !== cyclesB ? cyclesA - cyclesB : attackBonusB - attackBonusA
         })
 
         while (App.game.breeding.hasFreeEggSlot() && pokemonAvailable.length) {
           const pokemon = pokemonAvailable.shift()
+          const attackBonus = pokemon.baseAttack * (GameConstants.BREEDING_ATTACK_BONUS / 100) + pokemon.proteinsUsed()
+          const eggCycles = pokemonMap[pokemon.name].eggCycles
+
           console.log(
-            `Breeding ${pokemon.name} (attack: ${pokemon.attack}; base: ${pokemon.baseAttack}, bonus: ${pokemon.attackBonusAmount}; region: ${
-              GameConstants.Region[pokemonMap[pokemon.name].nativeRegion]
-            })`
+            `Breeding ${pokemon.name} [region: ${GameConstants.Region[pokemonMap[pokemon.name].nativeRegion]}]
+             egg cycles: ${eggCycles}; base attack: ${pokemon.baseAttack}; attack: ${pokemon.attack};
+             attack bonus amount: ${pokemon.attackBonusAmount}; attack bonus: ${attackBonus}`
           )
           App.game.breeding.addPokemonToHatchery(pokemon)
           await sleep(100)
